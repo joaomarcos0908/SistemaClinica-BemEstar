@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 
 
 public class Horario {
+    private int id;
     private LocalDate data;
     private LocalDateTime horaInicio;
     private LocalDateTime horaFim;
@@ -14,16 +15,25 @@ public class Horario {
 
     DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    public Horario(LocalDate data, boolean disponivel, LocalDateTime horaFim, LocalDateTime horaInicio, int idMedico, String tipo) {
+    public Horario(int id,LocalDate data, boolean disponivel, LocalDateTime horaFim, LocalDateTime horaInicio, int idMedico, String tipo) {
         if (Duration.between(horaInicio, horaFim).toMinutes() <= 0) {
-            throw new IllegalArgumentException("Hora fim maior que Hora inicio");
+            throw new IllegalArgumentException("Hora inicio maior que Hora fim");
         }
+        this.id=id;
         this.data = data;
         this.disponivel = disponivel;
         this.horaFim = horaFim;
         this.horaInicio = horaInicio;
         this.idMedico = idMedico;
         this.tipo = tipo;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public LocalDate getData() {
@@ -36,7 +46,7 @@ public class Horario {
 
     public LocalDateTime getHoraFim() {
         if (Duration.between(horaInicio, horaFim).toMinutes() <= 0) {
-            throw new IllegalArgumentException("Hora fim maior que hora inicio");
+            throw new IllegalArgumentException("Hora inicio maior que Hora fim");
         }
         return horaFim;
     }
