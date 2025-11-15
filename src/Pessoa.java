@@ -99,6 +99,47 @@ public abstract class Pessoa {
         }
         this.endereco = endereco;
     }
+
+    public boolean isGestante() {
+        return isGestante;
+    }
+
+    public void setGestante(boolean gestante) {
+        isGestante = gestante;
+    }
+
+    public boolean HasEspectroAutista() {
+        return hasEspectroAutista;
+    }
+
+    public void setHasEspectroAutista(boolean hasEspectroAutista) {
+        this.hasEspectroAutista = hasEspectroAutista;
+    }
+
+    public boolean isPcd() {
+        return isPcd;
+    }
+
+    public void setPcd(boolean pcd) {
+        isPcd = pcd;
+    }
+
+    public boolean isLactante() {
+        return isLactante;
+    }
+
+    public void setLactante(boolean lactante) {
+        isLactante = lactante;
+    }
+
+    public boolean HasCriancaColo() {
+        return hasCriancaColo;
+    }
+
+    public void setHasCriancaColo(boolean hasCriancaColo) {
+        this.hasCriancaColo = hasCriancaColo;
+    }
+
 }
 
 
