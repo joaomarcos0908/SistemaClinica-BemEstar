@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -6,9 +7,9 @@ public class Medico extends Pessoa{
     private List<String> especialidades;
     private double valorConsultaBase;
 
-    public Medico(String nome, String cpf, int idade, String email, String numTelefone, String endereco,
+    public Medico(String nome, String cpf, LocalDate dataNascimento, String email, String numTelefone, String endereco,
                   String crm, List<String> especialidades, double valorConsultaBase) {
-        super(nome, cpf, idade, email, numTelefone, endereco);
+        super(nome, cpf, dataNascimento, email, numTelefone, endereco);
         setCrm(crm);
         if(especialidades == null){
             this.especialidades = new ArrayList<>();

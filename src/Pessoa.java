@@ -1,15 +1,18 @@
+import java.time.LocalDate;
+import java.time.Period;
+
 public abstract class Pessoa {
     private String nome;
     private String cpf;
-    private int idade;
+    private LocalDate dataNascimento;
     private String email;
     private String numTelefone;
     private String endereco;
 
-    public Pessoa(String nome, String cpf, int idade, String email, String numTelefone, String endereco) {
+    public Pessoa(String nome, String cpf, LocalDate dataNascimento, String email, String numTelefone, String endereco) {
         setNome(nome);
         setCpf(cpf);
-        setIdade(idade);
+        setDataNascimento(dataNascimento);
         setEmail(email);
         setNumTelefone(numTelefone);
         setEndereco(endereco);
@@ -42,15 +45,26 @@ public abstract class Pessoa {
             this.cpf = cpf;
         }
 
-    public int getIdade() {
-        return idade;
+    public LocalDate getDataNascimento() {
+        return dataNascimento;
     }
 
-    public void setIdade(int idade) {
-        if(idade < 0){
-            throw new IllegalArgumentException("Insira uma idade válida.");
+    public void setDataNascimento(LocalDate dataNascimento) {
+        if(dataNascimento == null){
+            throw new IllegalArgumentException("Insira uma data de nascimento.");
         }
-        this.idade = idade;
+        if (dataNascimento.isAfter(LocalDate.now())){
+            throw new IllegalArgumentException("Insira uma data válida.");
+        }
+        this.dataNascimento = dataNascimento;
+    }
+
+    public int getIdade(){
+        return Period.between(this.dataNascimento, LocalDate.now()).getYears();
+    }
+
+    public Boolean isMaiorDeIdade() {
+        return getIdade() >= 18;
     }
 
     public String getEmail() {
