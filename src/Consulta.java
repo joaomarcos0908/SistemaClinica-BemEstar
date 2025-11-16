@@ -1,4 +1,5 @@
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 public class Consulta {
@@ -123,6 +124,9 @@ public class Consulta {
             System.out.println("Horário não encontrado.");
             return false;
         }
+
+        Cancelamento cancelamento = new Cancelamento(this.id, motivo, LocalDateTime.now());
+        cancelamento.calcularMultaCancelamento(horario);
         this.dataDeCancelamento = LocalDate.now();
         this.status = StatusConsulta.CANCELADA;
         horario.liberar();
