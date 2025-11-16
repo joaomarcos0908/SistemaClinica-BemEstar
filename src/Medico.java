@@ -8,8 +8,10 @@ public class Medico extends Pessoa{
     private double valorConsultaBase;
 
     public Medico(String nome, String cpf, LocalDate dataNascimento, String email, String numTelefone, String endereco,
-                  String crm, List<String> especialidades, double valorConsultaBase) {
-        super(nome, cpf, dataNascimento, email, numTelefone, endereco);
+                  boolean isGestante, boolean hasEspectroAutista, boolean isPcd, boolean isLactante,
+                  boolean hasCriancaColo, String crm, List<String> especialidades, double valorConsultaBase) {
+        super(nome, cpf, dataNascimento, email, numTelefone, endereco, isGestante, hasEspectroAutista, isPcd,
+                isLactante, hasCriancaColo);
         setCrm(crm);
         if(especialidades == null){
             this.especialidades = new ArrayList<>();

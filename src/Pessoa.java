@@ -8,14 +8,26 @@ public abstract class Pessoa {
     private String email;
     private String numTelefone;
     private String endereco;
+    private boolean isGestante;
+    private boolean hasEspectroAutista;
+    private boolean isPcd;
+    private boolean isLactante;
+    private boolean hasCriancaColo;
 
-    public Pessoa(String nome, String cpf, LocalDate dataNascimento, String email, String numTelefone, String endereco) {
+    public Pessoa(String nome, String cpf, LocalDate dataNascimento, String email, String numTelefone, String endereco,
+                  boolean isGestante, boolean hasEspectroAutista, boolean isPcd, boolean isLactante,
+                  boolean hasCriancaColo) {
         setNome(nome);
         setCpf(cpf);
         setDataNascimento(dataNascimento);
         setEmail(email);
         setNumTelefone(numTelefone);
         setEndereco(endereco);
+        this.isGestante = isGestante;
+        this.hasEspectroAutista = hasEspectroAutista;
+        this.isPcd = isPcd;
+        this.isLactante = isLactante;
+        this.hasCriancaColo = hasCriancaColo;
     }
 
     public String getNome() {
@@ -63,10 +75,6 @@ public abstract class Pessoa {
         return Period.between(this.dataNascimento, LocalDate.now()).getYears();
     }
 
-    public Boolean isMaiorDeIdade() {
-        return getIdade() >= 18;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -108,7 +116,7 @@ public abstract class Pessoa {
         isGestante = gestante;
     }
 
-    public boolean HasEspectroAutista() {
+    public boolean hasEspectroAutista() {
         return hasEspectroAutista;
     }
 
@@ -132,7 +140,7 @@ public abstract class Pessoa {
         isLactante = lactante;
     }
 
-    public boolean HasCriancaColo() {
+    public boolean hasCriancaColo() {
         return hasCriancaColo;
     }
 
