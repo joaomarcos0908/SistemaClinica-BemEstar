@@ -79,7 +79,7 @@ public List<Horario> listarQuadroDeHorarios(){
             }
             System.out.println(" Horários carregados de " + nomeArquivo);
         } catch (IOException e) {
-            System.out.println("Arquivo de horários não encontrado, iniciando vazio.");
+            System.out.println(" Arquivo de horários não encontrado, iniciando vazio.");
         }
     }
 }
