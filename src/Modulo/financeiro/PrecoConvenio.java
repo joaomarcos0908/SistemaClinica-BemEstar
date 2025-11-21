@@ -1,8 +1,8 @@
-package Modulos;
+package Modulo.financeiro;
 
-public class PrecoVIP implements CalculadoraPreco {
+public class PrecoConvenio implements CalculadoraPreco {
 
-    private static final double DESCONTO = 0.30;
+    private static final double DESCONTO = 0.20;
 
     @Override
     public double calcularValor(double valorBase) {
@@ -11,7 +11,7 @@ public class PrecoVIP implements CalculadoraPreco {
 
     @Override
     public String getTipo() {
-        return "VIP";
+        return "CONVENIO";
     }
 
     @Override
@@ -21,6 +21,6 @@ public class PrecoVIP implements CalculadoraPreco {
 
     @Override
     public String toString() {
-        return "VIP (30% de desconto)";
+        return "Convênio (20% de desconto)";
     }
 }

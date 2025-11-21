@@ -1,4 +1,4 @@
-package Modulos;
+package Modulo.financeiro;
 
 public interface CalculadoraPreco {
 
