@@ -7,12 +7,8 @@ import java.util.List;
 public class RepositorioHorario {
     List<Horario> repositorio = new ArrayList<>();
 
-    public Horario adicionar(int id, LocalDate data, boolean disponivel, LocalDateTime horaFim, LocalDateTime horaInicio, int idMedico, String tipo) {
-
-        Horario horario = new Horario(id, data, disponivel, horaFim, horaInicio, idMedico, tipo);
-
-        repositorio.add(horario);
-        return horario;
+    public void adicionar(Horario h) {
+        repositorio.add(h);
     }
 
     public Horario buscarPorID(int id) {
@@ -44,7 +40,6 @@ public List<Horario> listarQuadroDeHorarios(){
             for (Horario h : repositorio) {
                 bw.write(
                         h.getId() + "," +
-                                h.getData() + "," +
                                 h.isDisponivel() + "," +
                                 h.getHoraInicio() + "," +
                                 h.getHoraFim() + "," +
@@ -66,15 +61,15 @@ public List<Horario> listarQuadroDeHorarios(){
             String linha;
             while ((linha = br.readLine()) != null) {
                 String[] p = linha.split(",");
-                if (p.length >= 7) {
+                if (p.length >= 6) {
                     int id = Integer.parseInt(p[0]);
-                    LocalDate data = LocalDate.parse(p[1]);
-                    boolean disponivel = Boolean.parseBoolean(p[2]);
-                    LocalDateTime horaInicio = LocalDateTime.parse(p[3]);
-                    LocalDateTime horaFim = LocalDateTime.parse(p[4]);
-                    int idMedico = Integer.parseInt(p[5]);
-                    String tipo = p[6];
-                    repositorio.add(new Horario(id, data, disponivel, horaFim, horaInicio, idMedico, tipo));
+                    LocalDateTime horaInicio = LocalDateTime.parse(p[1]);
+                    LocalDateTime horaFim =LocalDateTime.parse(p[2]);
+                    int idMedico  = Integer.parseInt(p[3]);
+                    boolean disponivel = Boolean.parseBoolean(p[4]);
+                    String tipo = p[5];
+
+                    repositorio.add(new Horario(id,horaInicio,horaFim,idMedico,disponivel,tipo));
                 }
             }
             System.out.println(" Horários carregados de " + nomeArquivo);
@@ -82,6 +77,7 @@ public List<Horario> listarQuadroDeHorarios(){
             System.out.println(" Arquivo de horários não encontrado, iniciando vazio.");
         }
     }
+
 }
 
 

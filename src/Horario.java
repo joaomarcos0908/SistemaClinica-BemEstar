@@ -6,27 +6,29 @@ import java.time.format.DateTimeFormatter;
 
 public class Horario {
     private int id;
-    private LocalDate data;
     private LocalDateTime horaInicio;
     private LocalDateTime horaFim;
     private int idMedico;
     private boolean disponivel;
     private String tipo;
 
-    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    public Horario(int id,LocalDate data, boolean disponivel, LocalDateTime horaFim, LocalDateTime horaInicio, int idMedico, String tipo) {
-        if (Duration.between(horaInicio, horaFim).toMinutes() <= 0) {
-            throw new IllegalArgumentException("Hora inicio maior que Hora fim");
-        }
-        this.id=id;
-        this.data = data;
-        this.disponivel = disponivel;
-        this.horaFim = horaFim;
-        this.horaInicio = horaInicio;
-        this.idMedico = idMedico;
-        this.tipo = tipo;
+public Horario(int id, LocalDateTime horaInicio, LocalDateTime horaFim, int idMedico, boolean disponivel,String tipo){
+    if (horaInicio == null || horaFim == null) {
+        throw new IllegalArgumentException("horaInicio e horaFim não podem ser nulos");
     }
+    if (horaFim.isBefore(horaInicio) || horaFim.isEqual(horaInicio)) {
+        throw new IllegalArgumentException("horaFim deve ser posterior a horaInicio");
+    }
+    this.id=id;
+    this.horaInicio=horaInicio;
+    this.horaFim=horaFim;
+    this.idMedico=idMedico;
+    this.disponivel=disponivel;
+    this.tipo=tipo;
+}
+
+
 
     public int getId() {
         return id;
@@ -34,25 +36,6 @@ public class Horario {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public LocalDate getData() {
-        return data;
-    }
-
-    public void setData(LocalDate data) {
-        this.data = data;
-    }
-
-    public LocalDateTime getHoraFim() {
-        if (Duration.between(horaInicio, horaFim).toMinutes() <= 0) {
-            throw new IllegalArgumentException("Hora inicio maior que Hora fim");
-        }
-        return horaFim;
-    }
-
-    public void setHoraFim(LocalDateTime horaFim) {
-        this.horaFim = horaFim;
     }
 
     public LocalDateTime getHoraInicio() {
@@ -63,8 +46,28 @@ public class Horario {
         this.horaInicio = horaInicio;
     }
 
+    public LocalDateTime getHoraFim() {
+        return horaFim;
+    }
+
+    public void setHoraFim(LocalDateTime horaFim) {
+        this.horaFim = horaFim;
+    }
+
     public int getIdMedico() {
         return idMedico;
+    }
+
+    public void setIdMedico(int idMedico) {
+        this.idMedico = idMedico;
+    }
+
+    public boolean isDisponivel() {
+        return disponivel;
+    }
+
+    public void setDisponivel(boolean disponivel) {
+        this.disponivel = disponivel;
     }
 
     public String getTipo() {
@@ -73,10 +76,6 @@ public class Horario {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
-    }
-
-    public boolean isDisponivel() {
-        return disponivel;
     }
 
     public void ocupado() {

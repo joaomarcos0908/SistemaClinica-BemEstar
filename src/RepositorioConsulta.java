@@ -81,7 +81,8 @@ public Boolean procurarConsultaPorId(int id){
             }
             System.out.println(" Consultas carregadas de " + nomeArquivo);
         } catch (IOException e) {
-            System.out.println(" Arquivo de consultas não encontrado, iniciando vazio.");
+            System.out.println("" +
+                    " Arquivo de consultas não encontrado, iniciando vazio.");
         }
     }
 }

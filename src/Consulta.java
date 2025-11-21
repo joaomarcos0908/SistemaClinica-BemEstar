@@ -18,7 +18,7 @@ public class Consulta {
         this.dataDeCancelamento = dataDeCancelamento;
         this.id = id;
         this.idEspecialidade = idEspecialidade;
-        this.status = StatusConsulta.AGENDADA;
+        this.status =status!= null ? status:StatusConsulta.AGENDADA;
         this.emergencial = emergencial;
         this.idMedico = idMedico;
         this.idPaciente = idPaciente;
