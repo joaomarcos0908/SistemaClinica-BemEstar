@@ -1,3 +1,5 @@
+package clinica.sistema;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -45,7 +47,7 @@ public class Cancelamento {
         long periodoCancelamento = Duration.between(dataCancelamento, agendado.getHoraInicio()).toHours();
         if(periodoCancelamento<24){
          this.taxaAplicada= 0.5;
-            System.out.println("Cancelamento  em menos de 24 horas, terá que pagar 50% do valor da consulta.");
+            System.out.println("clinica.sistema.Cancelamento  em menos de 24 horas, terá que pagar 50% do valor da consulta.");
 
         }else{
             this.taxaAplicada = 0.0;
@@ -54,7 +56,7 @@ public class Cancelamento {
     }
 
     public String toString() {
-        return "Cancelamento da consulta " + idConsulta +
+        return "clinica.sistema.Cancelamento da consulta " + idConsulta +
                 " em " + dataCancelamento +
                 " | Motivo: " + motivo +
                 " | Taxa aplicada: " + (taxaAplicada * 100) + "%";

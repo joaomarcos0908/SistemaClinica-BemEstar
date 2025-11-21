@@ -1,17 +1,18 @@
+package clinica.pessoas;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Medico extends Pessoa{
+public class Medico extends Pessoa {
     private String crm;
-    private List<String> especialidades;
+    private List<Especialidade> especialidades;
     private double valorConsultaBase;
 
     public Medico(String nome, String cpf, LocalDate dataNascimento, String email, String numTelefone, String endereco,
                   boolean isGestante, boolean hasEspectroAutista, boolean isPcd, boolean isLactante,
-                  boolean hasCriancaColo, String crm, List<String> especialidades, double valorConsultaBase) {
-        super(nome, cpf, dataNascimento, email, numTelefone, endereco, isGestante, hasEspectroAutista, isPcd,
-                isLactante, hasCriancaColo);
+                  boolean hasCriancaColo, String crm, List<Especialidade> especialidades, double valorConsultaBase) {
+        super(nome, cpf, dataNascimento, email, numTelefone, endereco);
         setCrm(crm);
         if(especialidades == null){
             this.especialidades = new ArrayList<>();
@@ -32,11 +33,11 @@ public class Medico extends Pessoa{
         this.crm = crm;
     }
 
-    List<String> getEspecialidadesInternas() {
+    List<Especialidade> getEspecialidadesInternas() {
         return especialidades;
     }
 
-    public List<String> getEspecialidades() {
+    public List<Especialidade> getEspecialidades() {
         return new ArrayList<>(especialidades);
     }
 

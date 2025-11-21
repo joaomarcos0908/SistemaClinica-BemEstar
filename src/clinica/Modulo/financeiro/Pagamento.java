@@ -1,4 +1,4 @@
-package Modulo.financeiro;
+package clinica.Modulo.financeiro;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -143,7 +143,7 @@ public class Pagamento {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         return String.format(
                 "Pagamento ID: %s\n" +
-                        "Consulta: %s\n" +
+                        "clinica.sistema.Consulta: %s\n" +
                         "Valor Base: R$ %.2f\n" +
                         "Valor Final: R$ %.2f\n" +
                         "Tipo: %s (%.0f%% desconto)\n" +

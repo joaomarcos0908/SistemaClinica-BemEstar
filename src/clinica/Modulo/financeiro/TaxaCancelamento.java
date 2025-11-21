@@ -1,4 +1,4 @@
-package Modulo.financeiro;
+package clinica.Modulo.financeiro;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -99,9 +99,9 @@ public class TaxaCancelamento {
     @Override
     public String toString() {
         return String.format(
-                "Taxa de Cancelamento\n" +
+                "Taxa de clinica.sistema.Cancelamento\n" +
                         "ID: %s\n" +
-                        "Consulta: %s\n" +
+                        "clinica.sistema.Consulta: %s\n" +
                         "Valor Original: R$ %.2f\n" +
                         "Valor da Taxa (50%%): R$ %.2f\n" +
                         "Status: %s",

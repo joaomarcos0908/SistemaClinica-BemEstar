@@ -1,6 +1,6 @@
-package servicos;
+package clinica.servicos;
 
-import Modulo.financeiro.*;
+import clinica.Modulo.financeiro.*;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

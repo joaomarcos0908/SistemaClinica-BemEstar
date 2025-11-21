@@ -1,4 +1,4 @@
-package Modulo.medico;
+package clinica.Modulo.medico;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -124,7 +124,7 @@ public class HistoricoConsulta {
                 "=== HISTÓRICO DE CONSULTA ===\n" +
                         "ID: %s\n" +
                         "Data: %s\n" +
-                        "Especialidade: %s\n" +
+                        "clinica.pessoas.Especialidade: %s\n" +
                         "Sintomas: %s\n" +
                         "Diagnóstico: %s\n" +
                         "Observações: %s\n" +

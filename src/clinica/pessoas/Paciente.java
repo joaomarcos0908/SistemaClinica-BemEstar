@@ -1,8 +1,15 @@
+package clinica.pessoas;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Paciente extends  Pessoa {
+public class Paciente extends Pessoa {
+    private boolean isGestante;
+    private boolean hasEspectroAutista;
+    private boolean isPcd;
+    private boolean isLactante;
+    private boolean hasCriancaColo;
     private TipoPaciente tipoPaciente;
     private List<String> historicoIds;
     private TipoAtendimento tipoAtendimento;
@@ -10,8 +17,12 @@ public class Paciente extends  Pessoa {
     public Paciente(String nome, String cpf, LocalDate dataNascimento, String email, String numTelefone,
                     String endereco, boolean isGestante, boolean hasEspectroAutista, boolean isPcd, boolean isLactante,
                     boolean hasCriancaColo, TipoPaciente tipoPaciente, List<String> historicoIds, TipoAtendimento tipoAtendimento) {
-        super(nome, cpf, dataNascimento, email, numTelefone, endereco, isGestante, hasEspectroAutista, isPcd,
-                isLactante, hasCriancaColo);
+        super(nome, cpf, dataNascimento, email, numTelefone, endereco);
+        this.isGestante = isGestante;
+        this.hasEspectroAutista = hasEspectroAutista;
+        this.isPcd = isPcd;
+        this.isLactante = isLactante;
+        this.hasCriancaColo = hasCriancaColo;
         setTipoPaciente(tipoPaciente);
         setHistoricoIds(historicoIds);
         setTipoAtendimento(tipoAtendimento);
@@ -22,22 +33,10 @@ public class Paciente extends  Pessoa {
     }
 
     public void setTipoPaciente(TipoPaciente tipoPaciente) {
-        if (tipoPaciente == tipoPaciente.PRIORIDADE && !isPrioridade()) {
-            throw new IllegalArgumentException("Paciente não possui os requisitos para um atendimento prioritário.");
+        if (tipoPaciente == TipoPaciente.PRIORIDADE && !isPrioridade()) {
+            throw new IllegalArgumentException("clinica.pessoas.Paciente não possui os requisitos para um atendimento prioritário.");
         }
         this.tipoPaciente = tipoPaciente;
-    }
-    public static TipoPaciente obterTipoPacientePorNumero(int opcao) {
-        switch (opcao) {
-            case 1:
-                return TipoPaciente.EMERGENCIA;
-            case 2:
-                return TipoPaciente.PRIORIDADE;
-            case 3:
-                return TipoPaciente.ELETIVO;
-            default:
-                throw new IllegalArgumentException("Tipo de paciente inválido. Escolha 1, 2 ou 3.");
-        }
     }
 
     public List<String> getHistoricoIds() {
@@ -58,16 +57,6 @@ public class Paciente extends  Pessoa {
         }
     }
 
-    public void verHistoricoId() {
-        if (this.historicoIds.isEmpty()) {
-            System.out.println("Histórico vazio!");
-        } else {
-            for (String id : historicoIds) {
-                System.out.println(id);
-            }
-        }
-    }
-
     public TipoAtendimento getTipoAtendimento() {
         return tipoAtendimento;
     }
@@ -75,17 +64,46 @@ public class Paciente extends  Pessoa {
     public void setTipoAtendimento(TipoAtendimento tipoAtendimento) {
         this.tipoAtendimento = tipoAtendimento;
     }
-    public static TipoAtendimento obterTipoAtendimentoPorNumero(int opcao) {
-        switch (opcao) {
-            case 1:
-                return TipoAtendimento.CONVENIO;
-            case 2:
-                return TipoAtendimento.PARTICULAR;
-            default:
-                throw new IllegalArgumentException("Tipo de atendimento inválido. Escolha 1 ou 2.");
-        }
+
+    public boolean isGestante() {
+        return isGestante;
     }
 
+    public void setGestante(boolean gestante) {
+        isGestante = gestante;
+    }
+
+    public boolean hasEspectroAutista() {
+        return hasEspectroAutista;
+    }
+
+    public void setHasEspectroAutista(boolean hasEspectroAutista) {
+        this.hasEspectroAutista = hasEspectroAutista;
+    }
+
+    public boolean isPcd() {
+        return isPcd;
+    }
+
+    public void setPcd(boolean pcd) {
+        isPcd = pcd;
+    }
+
+    public boolean isLactante() {
+        return isLactante;
+    }
+
+    public void setLactante(boolean lactante) {
+        isLactante = lactante;
+    }
+
+    public boolean hasCriancaColo() {
+        return hasCriancaColo;
+    }
+
+    public void setHasCriancaColo(boolean hasCriancaColo) {
+        this.hasCriancaColo = hasCriancaColo;
+    }
 
     public Boolean isAcompanhanteNecessario() {
         return getIdade() < 12;

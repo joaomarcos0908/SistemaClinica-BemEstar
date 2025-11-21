@@ -1,3 +1,5 @@
+package clinica.sistema;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -18,7 +20,7 @@ public class Consulta {
         this.dataDeCancelamento = dataDeCancelamento;
         this.id = id;
         this.idEspecialidade = idEspecialidade;
-        this.status =status!= null ? status:StatusConsulta.AGENDADA;
+        this.status =status!= null ? status: StatusConsulta.AGENDADA;
         this.emergencial = emergencial;
         this.idMedico = idMedico;
         this.idPaciente = idPaciente;
@@ -110,7 +112,7 @@ public class Consulta {
         }
         if (emergencial) {
             this.status = StatusConsulta.EMERGENCIAL;
-            System.out.println("Consulta emergencial encaixada para o paciente de ID : " + idPaciente);
+            System.out.println("clinica.sistema.Consulta emergencial encaixada para o paciente de ID : " + idPaciente);
         } else {
             horario.ocupado();
             this.status = StatusConsulta.CONFIRMADA;
@@ -130,7 +132,7 @@ public class Consulta {
         this.dataDeCancelamento = LocalDate.now();
         this.status = StatusConsulta.CANCELADA;
         horario.liberar();
-        System.out.println("Consulta Cancelada com sucesso, pelo motivo :" + motivo);
+        System.out.println("clinica.sistema.Consulta Cancelada com sucesso, pelo motivo :" + motivo);
 
         return true;
     }

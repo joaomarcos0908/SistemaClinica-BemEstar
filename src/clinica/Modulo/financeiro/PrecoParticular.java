@@ -1,4 +1,4 @@
-package Modulo.financeiro;
+package clinica.Modulo.financeiro;
 
 
 public class PrecoParticular implements CalculadoraPreco {

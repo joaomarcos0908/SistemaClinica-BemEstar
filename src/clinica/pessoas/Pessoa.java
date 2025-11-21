@@ -1,3 +1,5 @@
+package clinica.pessoas;
+
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -8,26 +10,14 @@ public abstract class Pessoa {
     private String email;
     private String numTelefone;
     private String endereco;
-    private boolean isGestante;
-    private boolean hasEspectroAutista;
-    private boolean isPcd;
-    private boolean isLactante;
-    private boolean hasCriancaColo;
 
-    public Pessoa(String nome, String cpf, LocalDate dataNascimento, String email, String numTelefone, String endereco,
-                  boolean isGestante, boolean hasEspectroAutista, boolean isPcd, boolean isLactante,
-                  boolean hasCriancaColo) {
+    public Pessoa(String nome, String cpf, LocalDate dataNascimento, String email, String numTelefone, String endereco){
         setNome(nome);
         setCpf(cpf);
         setDataNascimento(dataNascimento);
         setEmail(email);
         setNumTelefone(numTelefone);
         setEndereco(endereco);
-        this.isGestante = isGestante;
-        this.hasEspectroAutista = hasEspectroAutista;
-        this.isPcd = isPcd;
-        this.isLactante = isLactante;
-        this.hasCriancaColo = hasCriancaColo;
     }
 
     public String getNome() {
@@ -106,46 +96,6 @@ public abstract class Pessoa {
             throw new IllegalArgumentException("Insira um endereço.");
         }
         this.endereco = endereco;
-    }
-
-    public boolean isGestante() {
-        return isGestante;
-    }
-
-    public void setGestante(boolean gestante) {
-        isGestante = gestante;
-    }
-
-    public boolean hasEspectroAutista() {
-        return hasEspectroAutista;
-    }
-
-    public void setHasEspectroAutista(boolean hasEspectroAutista) {
-        this.hasEspectroAutista = hasEspectroAutista;
-    }
-
-    public boolean isPcd() {
-        return isPcd;
-    }
-
-    public void setPcd(boolean pcd) {
-        isPcd = pcd;
-    }
-
-    public boolean isLactante() {
-        return isLactante;
-    }
-
-    public void setLactante(boolean lactante) {
-        isLactante = lactante;
-    }
-
-    public boolean hasCriancaColo() {
-        return hasCriancaColo;
-    }
-
-    public void setHasCriancaColo(boolean hasCriancaColo) {
-        this.hasCriancaColo = hasCriancaColo;
     }
 
 }
