@@ -1,4 +1,4 @@
-package models.medico;
+package clinica.Modulo.medico;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
