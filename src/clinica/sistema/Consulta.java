@@ -1,5 +1,7 @@
 package clinica.sistema;
 
+import clinica.repositorio.RepositorioHorario;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 

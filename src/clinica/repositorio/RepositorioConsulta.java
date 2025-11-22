@@ -1,4 +1,7 @@
-package clinica.sistema;
+package clinica.repositorio;
+
+import clinica.sistema.Consulta;
+import clinica.sistema.StatusConsulta;
 
 import java.io.*;
 import java.io.IOException;
