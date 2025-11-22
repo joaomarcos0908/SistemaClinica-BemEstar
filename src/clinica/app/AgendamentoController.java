@@ -3,6 +3,8 @@ package clinica.app;
 import clinica.repositorio.RepositorioConsulta;
 import clinica.repositorio.RepositorioHorario;
 import clinica.sistema.*;
+import clinica.pessoas.*;
+import clinica.repositorio.RepositorioPaciente;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,6 +15,9 @@ public class AgendamentoController {
     private RepositorioHorario repoHorario;
     private RepositorioConsulta repoConsulta;
 
+    private Gerente gerente;
+    private RepositorioPaciente repoPaciente;
+
     private static final String ARQ_HORARIOS = "dados/horarios.csv";
     private static final String ARQ_CONSULTAS = "dados/consultas.csv";
 
@@ -20,6 +25,14 @@ public class AgendamentoController {
         this.view = view;
         this.repoHorario = new RepositorioHorario();
         this.repoConsulta = new RepositorioConsulta();
+        this.gerente = null;
+        this.repoPaciente = null;
+    }
+
+
+    public void setRepositoriosCadastro(Gerente gerente, RepositorioPaciente repoPaciente) {
+        this.gerente = gerente;
+        this.repoPaciente = repoPaciente;
     }
 
     public void executar() {
@@ -37,6 +50,7 @@ public class AgendamentoController {
         } while (op != 0);
     }
 
+    // ========== HORÁRIOS ==========
     private void menuHorarios() {
         int op;
         do {
@@ -122,6 +136,7 @@ public class AgendamentoController {
         else view.erro("Horário não encontrado!");
     }
 
+
     private void menuConsultas() {
         int op;
         do {
@@ -142,12 +157,33 @@ public class AgendamentoController {
 
     private void agendarConsulta(boolean emergencial) {
         view.titulo(emergencial ? "Agendar Consulta Emergencial" : "Agendar Consulta");
+
         try {
             int id = view.lerInt("ID da Consulta: ");
-            int idPaciente = view.lerInt("ID do Paciente: ");
-            int idMedico = view.lerInt("ID do Médico: ");
-            int idEspecialidade = view.lerInt("ID da Especialidade: ");
-            int idHorario = view.lerInt("ID do Horário: ");
+
+
+            for (Consulta c : repoConsulta.listarConsultas()) {
+                if (c.getId() == id) {
+                    view.erro("Já existe uma consulta com este ID!");
+                    return;
+                }
+            }
+
+
+            int idPaciente = lerEValidarPaciente();
+            if (idPaciente == -1) return;
+
+
+            int idMedico = lerEValidarMedico();
+            if (idMedico == -1) return;
+
+
+            int idEspecialidade = lerEValidarEspecialidade(idMedico);
+            if (idEspecialidade == -1) return;
+
+
+            int idHorario = lerEValidarHorario(idMedico);
+            if (idHorario == -1) return;
 
             Consulta c = new Consulta(LocalDate.now(), null, id, idEspecialidade,
                     StatusConsulta.AGENDADA, emergencial, idMedico, idPaciente);
@@ -161,6 +197,150 @@ public class AgendamentoController {
         } catch (Exception e) {
             view.erro(e.getMessage());
         }
+    }
+
+    private int lerEValidarPaciente() {
+        // Se não tem repositório conectado, apenas pede o ID
+        if (repoPaciente == null) {
+            view.info("⚠️ Validação de paciente não disponível.");
+            return view.lerInt("ID do Paciente: ");
+        }
+
+        List<Paciente> pacientes = repoPaciente.listarPacientes();
+        if (pacientes.isEmpty()) {
+            view.erro("Nenhum paciente cadastrado! Cadastre um paciente primeiro.");
+            return -1;
+        }
+
+
+        view.info("Pacientes cadastrados:");
+        for (int i = 0; i < pacientes.size(); i++) {
+            Paciente p = pacientes.get(i);
+            System.out.printf("  %d. %s (CPF: %s)%n", i + 1, p.getNome(), p.getCpf());
+        }
+
+        int escolha = view.lerInt("Escolha o número do paciente: ");
+        if (escolha < 1 || escolha > pacientes.size()) {
+            view.erro("Opção inválida!");
+            return -1;
+        }
+
+
+        Paciente selecionado = pacientes.get(escolha - 1);
+        view.sucesso("Paciente selecionado: " + selecionado.getNome());
+        return escolha;
+    }
+
+    private int lerEValidarMedico() {
+        if (gerente == null) {
+            view.info(" Validação de médico não disponível.");
+            return view.lerInt("ID do Médico: ");
+        }
+
+        List<Medico> medicos = gerente.getMedicos();
+        if (medicos.isEmpty()) {
+            view.erro("Nenhum médico cadastrado! O gerente deve cadastrar médicos primeiro.");
+            return -1;
+        }
+
+
+        view.info("Médicos cadastrados:");
+        for (int i = 0; i < medicos.size(); i++) {
+            Medico m = medicos.get(i);
+            System.out.printf("  %d. Dr(a). %s - CRM: %s%n", i + 1, m.getNome(), m.getCrm());
+        }
+
+        int escolha = view.lerInt("Escolha o número do médico: ");
+        if (escolha < 1 || escolha > medicos.size()) {
+            view.erro("Opção inválida!");
+            return -1;
+        }
+
+        Medico selecionado = medicos.get(escolha - 1);
+        view.sucesso("Médico selecionado: Dr(a). " + selecionado.getNome());
+        return escolha;  // Usando índice como ID
+    }
+
+    private int lerEValidarEspecialidade(int idMedico) {
+
+        if (gerente == null) {
+            view.info(" Validação de especialidade não disponível.");
+            return view.lerInt("ID da Especialidade: ");
+        }
+
+        List<Medico> medicos = gerente.getMedicos();
+        if (idMedico < 1 || idMedico > medicos.size()) {
+            return view.lerInt("ID da Especialidade: ");
+        }
+
+        Medico medico = medicos.get(idMedico - 1);
+        List<Especialidade> especialidades = medico.getEspecialidades();
+
+        if (especialidades.isEmpty()) {
+            view.info("Médico não possui especialidades cadastradas. Usando especialidade padrão.");
+            return 0;
+        }
+
+
+        view.info("Especialidades do Dr(a). " + medico.getNome() + ":");
+        for (int i = 0; i < especialidades.size(); i++) {
+            System.out.printf("  %d. %s%n", i + 1, especialidades.get(i).getNome());
+        }
+
+        int escolha = view.lerInt("Escolha a especialidade: ");
+        if (escolha < 1 || escolha > especialidades.size()) {
+            view.erro("Opção inválida! Usando primeira especialidade.");
+            return 1;
+        }
+
+        view.sucesso("Especialidade: " + especialidades.get(escolha - 1).getNome());
+        return escolha;
+    }
+
+    private int lerEValidarHorario(int idMedico) {
+        List<Horario> horarios = repoHorario.listarQuadroDeHorarios();
+
+        if (horarios.isEmpty()) {
+            view.erro("Nenhum horário cadastrado! Cadastre horários primeiro.");
+            return -1;
+        }
+
+
+        view.info("Horários disponíveis:");
+        int count = 0;
+        for (Horario h : horarios) {
+            if (h.isDisponivel()) {
+                System.out.printf("  ID: %d | %s - %s | Médico ID: %d%n",
+                        h.getId(),
+                        h.getHoraInicio().format(MenuView.DTF),
+                        h.getHoraFim().format(MenuView.DTF),
+                        h.getIdMedico());
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            view.erro("Nenhum horário disponível!");
+            return -1;
+        }
+
+        int idHorario = view.lerInt("Digite o ID do horário: ");
+        Horario horarioSelecionado = repoHorario.buscarPorID(idHorario);
+
+        if (horarioSelecionado == null) {
+            view.erro("Horário não encontrado!");
+            return -1;
+        }
+
+        if (!horarioSelecionado.isDisponivel()) {
+            view.erro("Este horário não está disponível!");
+            return -1;
+        }
+
+        view.sucesso("Horário selecionado: " +
+                horarioSelecionado.getHoraInicio().format(MenuView.DTF) + " - " +
+                horarioSelecionado.getHoraFim().format(MenuView.DTF));
+        return idHorario;
     }
 
     private void buscarConsulta() {
