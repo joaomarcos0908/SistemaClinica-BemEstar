@@ -17,13 +17,25 @@ public class Main {
             op = view.lerInt("Opção: ");
 
             switch (op) {
-                case 1: cadastroCtrl.executar(); break;
+                case 1:
+                    cadastroCtrl.executar();
+                    // Atualiza conexão caso gerente tenha logado
+                    atualizarConexoes();
+                    break;
                 case 2: agendamentoCtrl.executar(); break;
                 case 3: financeiroCtrl.executar(); break;
                 case 0: finalizar(); break;
                 default: view.erro("Opção inválida!");
             }
         } while (op != 0);
+    }
+
+    private static void atualizarConexoes() {
+
+        agendamentoCtrl.setRepositoriosCadastro(
+                cadastroCtrl.getGerenteLogado(),
+                cadastroCtrl.getRepoPaciente()
+        );
     }
 
     private static void inicializar() {
@@ -39,6 +51,12 @@ public class Main {
 
 
         financeiroCtrl.setRepoConsulta(agendamentoCtrl.getRepoConsulta());
+
+
+        agendamentoCtrl.setRepositoriosCadastro(
+                cadastroCtrl.getGerenteLogado(),
+                cadastroCtrl.getRepoPaciente()
+        );
 
         view.sucesso("Sistema iniciado com sucesso!");
         view.info("Clínica Bem Estar - Sistema de Gestão");

@@ -261,6 +261,7 @@ public class CadastroController {
         }
     }
 
-    public Gerente getGerente() { return gerente; }
+
+    public Gerente getGerenteLogado() { return gerente; }
     public RepositorioPaciente getRepoPaciente() { return repoPaciente; }
 }
