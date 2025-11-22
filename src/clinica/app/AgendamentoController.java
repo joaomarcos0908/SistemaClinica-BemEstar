@@ -48,7 +48,6 @@ public class AgendamentoController {
         } while (op != 0);
     }
 
-    // ========== HORÁRIOS ==========
     private void menuHorarios() {
         int op;
         do {
@@ -83,7 +82,7 @@ public class AgendamentoController {
             view.info("Hora de FIM (dd/MM/yyyy HH:mm):");
             LocalDateTime fim = view.lerDataHora();
 
-            // VALIDAÇÃO: Fim deve ser após início
+
             if (!fim.isAfter(inicio)) {
                 view.erro("Hora de fim deve ser posterior à hora de início!");
                 return;
@@ -94,7 +93,7 @@ public class AgendamentoController {
 
             Horario h = new Horario(id, inicio, fim, idMedico, true, tipo);
             repoHorario.adicionar(h);
-            salvarDados(); // CORRIGIDO: Salva automaticamente
+            salvarDados();
             view.sucesso("Horário cadastrado! Duração: " + h.duracaoHoraTrabalho() + " minutos");
         } catch (Exception e) {
             view.erro("Erro ao cadastrar horário: " + e.getMessage());
@@ -149,7 +148,7 @@ public class AgendamentoController {
             return;
         }
 
-        // NOVO: Verifica se há consultas agendadas neste horário
+
         boolean temConsulta = repoConsulta.listarConsultas().stream()
                 .anyMatch(c -> c.getIdHorario() == id &&
                         c.getStatus() != StatusConsulta.CANCELADA);
@@ -159,10 +158,10 @@ public class AgendamentoController {
             return;
         }
 
-        // NOVO: Confirmação
+
         if (view.lerBool("Confirma remoção do horário?")) {
             if (repoHorario.remover(id)) {
-                salvarDados(); // CORRIGIDO: Salva automaticamente
+                salvarDados();
                 view.sucesso("Horário removido!");
             } else {
                 view.erro("Erro ao remover horário!");
@@ -172,7 +171,7 @@ public class AgendamentoController {
         }
     }
 
-    // ========== CONSULTAS ==========
+
     private void menuConsultas() {
         int op;
         do {
@@ -197,14 +196,14 @@ public class AgendamentoController {
         try {
             int id = view.lerInt("ID da Consulta: ");
 
-            // CORREÇÃO: Usando busca otimizada
+
             Consulta existente = buscarConsultaPorId(id);
             if (existente != null) {
                 view.erro("Já existe uma consulta com este ID!");
                 return;
             }
 
-            // CORREÇÃO: Valida e obtém IDs reais (não índices)
+
             int idPaciente = lerEValidarPaciente();
             if (idPaciente == -1) return;
 
@@ -223,7 +222,7 @@ public class AgendamentoController {
 
             if (c.agendarConsulta(repoHorario)) {
                 repoConsulta.adicionar(c);
-                salvarDados(); // CORRIGIDO: Salva automaticamente
+                salvarDados();
                 view.sucesso("Consulta agendada com sucesso!");
                 System.out.println("ID: " + c.getId() + " | Status: " + c.getStatus());
             } else {
@@ -236,7 +235,7 @@ public class AgendamentoController {
 
     private int lerEValidarPaciente() {
         if (repoPaciente == null) {
-            view.info("⚠️ Validação de paciente não disponível.");
+            view.info(" Validação de paciente não disponível.");
             return view.lerInt("ID do Paciente: ");
         }
 
@@ -262,15 +261,12 @@ public class AgendamentoController {
         Paciente selecionado = pacientes.get(escolha - 1);
         view.sucesso("Paciente selecionado: " + selecionado.getNome());
 
-        // CORREÇÃO: Retorna um ID único baseado no CPF ou objeto
-        // Como não temos getId() em Paciente, usamos o índice como antes
-        // mas documentado que é o índice da lista
         return escolha;
     }
 
     private int lerEValidarMedico() {
         if (gerente == null) {
-            view.info("⚠️ Validação de médico não disponível.");
+            view.info(" Validação de médico não disponível.");
             return view.lerInt("ID do Médico: ");
         }
 
@@ -301,7 +297,6 @@ public class AgendamentoController {
         Medico selecionado = medicos.get(escolha - 1);
         view.sucesso("Médico selecionado: Dr(a). " + selecionado.getNome());
 
-        // NOTA: Retorna índice da lista (posição 1-based)
         return escolha;
     }
 
@@ -423,7 +418,7 @@ public class AgendamentoController {
 
         if (c.getStatus() == StatusConsulta.AGENDADA) {
             c.setStatus(StatusConsulta.CONFIRMADA);
-            salvarDados(); // CORRIGIDO: Salva automaticamente
+            salvarDados();
             view.sucesso("Consulta confirmada!");
         } else {
             view.erro("Não é possível confirmar. Status atual: " + c.getStatus());
@@ -443,14 +438,14 @@ public class AgendamentoController {
         if (c.getStatus() == StatusConsulta.CONFIRMADA ||
                 c.getStatus() == StatusConsulta.EMERGENCIAL) {
             c.setStatus(StatusConsulta.REALIZADA);
-            salvarDados(); // CORRIGIDO: Salva automaticamente
+            salvarDados();
             view.sucesso("Consulta marcada como realizada!");
         } else {
             view.erro("Não é possível realizar. Status atual: " + c.getStatus());
         }
     }
 
-    // ========== CANCELAMENTOS ==========
+
     private void menuCancelamentos() {
         int op;
         do {
@@ -494,7 +489,7 @@ public class AgendamentoController {
         if (view.lerBool("Confirma cancelamento desta consulta?")) {
             String motivo = view.lerStr("Motivo do cancelamento: ");
             c.cancelarConsulta(repoHorario, motivo);
-            salvarDados(); // CORRIGIDO: Salva automaticamente
+            salvarDados();
             view.sucesso("Consulta cancelada!");
         } else {
             view.info("Operação cancelada.");
@@ -536,11 +531,6 @@ public class AgendamentoController {
         System.out.println("\nTotal canceladas: " + canceladas.size());
     }
 
-    // ========== UTILITÁRIOS ==========
-
-    /**
-     * NOVO: Método auxiliar para buscar consulta por ID (mais eficiente)
-     */
     private Consulta buscarConsultaPorId(int id) {
         return repoConsulta.listarConsultas().stream()
                 .filter(c -> c.getId() == id)
@@ -548,7 +538,7 @@ public class AgendamentoController {
                 .orElse(null);
     }
 
-    // ========== PERSISTÊNCIA ==========
+
 
     public void carregarDados() {
         try {
@@ -568,8 +558,6 @@ public class AgendamentoController {
             view.erro("Erro ao salvar dados de agendamento: " + e.getMessage());
         }
     }
-
-    // ========== GETTERS ==========
 
     public RepositorioHorario getRepoHorario() { return repoHorario; }
     public RepositorioConsulta getRepoConsulta() { return repoConsulta; }

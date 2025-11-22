@@ -45,8 +45,8 @@ public class CadastroController {
                 case 1: cadastrarMedico(); break;
                 case 2: listarMedicos(); break;
                 case 3: buscarMedico(); break;
-                case 4: editarMedico(); break;  // NOVO
-                case 5: removerMedico(); break; // Mudou de 4 para 5
+                case 4: editarMedico(); break;
+                case 5: removerMedico(); break;
                 case 0: view.voltando(); break;
                 default: view.erro("Opção inválida!");
             }
@@ -69,7 +69,7 @@ public class CadastroController {
             String end = view.lerStr("Endereço: ");
 
             String crm = view.lerStr("CRM: ");
-            // VALIDAÇÃO: Verifica se CRM já existe
+
             for (Medico existente : gerente.getMedicos()) {
                 if (existente.getCrm().equalsIgnoreCase(crm)) {
                     view.erro("CRM já cadastrado!");
@@ -93,7 +93,7 @@ public class CadastroController {
                     false, false, false, false, false, crm,
                     especialidades, valor);
             gerente.adicionarMedico(m);
-            salvarDados(); // CORRIGIDO: Salva automaticamente
+            salvarDados();
             view.sucesso("Médico cadastrado com sucesso!");
         } catch (Exception e) {
             view.erro("Erro ao cadastrar: " + e.getMessage());
@@ -182,7 +182,7 @@ public class CadastroController {
         view.erro("Médico não encontrado!");
     }
 
-    // NOVO MÉTODO: Editar médico
+
     private void editarMedico() {
         view.titulo("Editar Médico");
         String crm = view.lerStr("CRM do Médico: ");
@@ -220,8 +220,6 @@ public class CadastroController {
                     }
                 }
 
-                // REMOVIDO: Edição de especialidades
-                // (Requer adicionar método setEspecialidades na classe Medico)
                 view.info("Nota: Para alterar especialidades, recadastre o médico.");
 
                 salvarDados();
@@ -243,7 +241,6 @@ public class CadastroController {
                 System.out.println("  CRM: " + crm);
                 System.out.println("  Especialidades: " + m.getEspecialidades().size());
 
-                // CORREÇÃO: Adiciona confirmação
                 if (view.lerBool("Confirma a remoção deste médico?")) {
                     gerente.removerMedico(m);
                     salvarDados(); // CORRIGIDO: Salva automaticamente
@@ -282,7 +279,7 @@ public class CadastroController {
             String cpf = view.lerStr("CPF: ");
             if (!validarCPF(cpf)) return;
 
-            // VALIDAÇÃO: Verifica se CPF já existe
+
             for (Paciente existente : repoPaciente.listarPacientes()) {
                 if (existente.getCpf().equals(cpf)) {
                     view.erro("CPF já cadastrado!");
@@ -309,7 +306,7 @@ public class CadastroController {
             view.info("  3 - ELETIVO");
             int tipoPac = view.lerInt("Tipo: ");
 
-            // CORREÇÃO: Validação segura
+
             TipoPaciente tp;
             if (tipoPac < 1 || tipoPac > 3) {
                 view.erro("Tipo inválido! Usando ELETIVO como padrão.");
@@ -323,7 +320,7 @@ public class CadastroController {
             view.info("  2 - PARTICULAR");
             int tipoAt = view.lerInt("Tipo: ");
 
-            // CORREÇÃO: Validação segura
+
             TipoAtendimento ta;
             if (tipoAt == 1) {
                 ta = TipoAtendimento.CONVENIO;
@@ -385,7 +382,7 @@ public class CadastroController {
         view.erro("Paciente não encontrado!");
     }
 
-    // NOVO MÉTODO: Editar paciente
+
     private void editarPaciente() {
         view.titulo("Editar Paciente");
         String cpf = view.lerStr("CPF do Paciente: ");
@@ -429,7 +426,7 @@ public class CadastroController {
                 System.out.println("  CPF: " + cpf);
                 System.out.println("  Tipo: " + p.getTipoPaciente());
 
-                // CORREÇÃO: Adiciona confirmação
+
                 if (view.lerBool("Confirma a remoção deste paciente?")) {
                     repoPaciente.removerPaciente(p);
                     salvarDados(); // CORRIGIDO: Salva automaticamente
@@ -443,9 +440,8 @@ public class CadastroController {
         view.erro("Paciente não encontrado!");
     }
 
-    // NOVO MÉTODO: Validação de CPF
+
     private boolean validarCPF(String cpf) {
-        // Remove caracteres não numéricos
         String cpfLimpo = cpf.replaceAll("[^0-9]", "");
 
         if (cpfLimpo.length() != 11) {
@@ -453,7 +449,7 @@ public class CadastroController {
             return false;
         }
 
-        // Verifica se todos os dígitos são iguais (ex: 111.111.111-11)
+
         if (cpfLimpo.matches("(\\d)\\1{10}")) {
             view.erro("CPF inválido!");
             return false;

@@ -16,7 +16,7 @@ public class PrecoVIP implements CalculadoraPreco {
 
     @Override
     public double getDesconto() {
-        return DESCONTO * 100; // Retorna em percentual
+        return DESCONTO * 100;
     }
 
     @Override
