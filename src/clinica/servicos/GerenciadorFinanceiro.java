@@ -12,6 +12,7 @@ public class GerenciadorFinanceiro {
     private List<TaxaCancelamento> taxas;
     private static final String ARQUIVO_PAGAMENTOS = "dados/pagamentos.csv";
     private static final String ARQUIVO_TAXAS = "dados/taxas.csv";
+    private static final String DIRETORIO_RELATORIOS = "relatorios/";
 
     public GerenciadorFinanceiro() {
         this.pagamentos = new ArrayList<>();
@@ -22,9 +23,9 @@ public class GerenciadorFinanceiro {
 
     private void criarDiretorio() {
         File dir = new File("dados");
-        if (!dir.exists()) {
-            dir.mkdir();
-        }
+        if (!dir.exists()) dir.mkdir();
+        File dirRel = new File(DIRETORIO_RELATORIOS);
+        if (!dirRel.exists()) dirRel.mkdirs();
     }
 
     public Pagamento criarPagamento(String consultaId, double valorBase, String tipoPaciente) {
@@ -38,9 +39,7 @@ public class GerenciadorFinanceiro {
         Pagamento pagamento = buscarPagamentoPorId(pagamentoId);
         if (pagamento != null) {
             boolean sucesso = pagamento.registrarPagamento(forma);
-            if (sucesso) {
-                salvarPagamentos();
-            }
+            if (sucesso) salvarPagamentos();
             return sucesso;
         }
         return false;
@@ -63,6 +62,7 @@ public class GerenciadorFinanceiro {
         if (taxa != null && !taxa.isCobrado()) {
             Pagamento cobranca = taxa.gerarCobranca(tipoPaciente);
             pagamentos.add(cobranca);
+            taxa.marcarComoCobrado();
             salvarPagamentos();
             salvarTaxas();
             return cobranca;
@@ -71,22 +71,25 @@ public class GerenciadorFinanceiro {
     }
 
     public Pagamento buscarPagamentoPorId(String id) {
+        if (id == null) return null;
         return pagamentos.stream()
-                .filter(p -> p.getId().equals(id))
+                .filter(p -> id.equals(p.getId()))
                 .findFirst()
                 .orElse(null);
     }
 
     public Pagamento buscarPagamentoPorConsulta(String consultaId) {
+        if (consultaId == null) return null;
         return pagamentos.stream()
-                .filter(p -> p.getConsultaId().equals(consultaId))
+                .filter(p -> consultaId.equals(p.getConsultaId()))
                 .findFirst()
                 .orElse(null);
     }
 
     public TaxaCancelamento buscarTaxaPorId(String id) {
+        if (id == null) return null;
         return taxas.stream()
-                .filter(t -> t.getId().equals(id))
+                .filter(t -> id.equals(t.getId()))
                 .findFirst()
                 .orElse(null);
     }
@@ -102,8 +105,9 @@ public class GerenciadorFinanceiro {
     }
 
     public List<Pagamento> listarPagamentosPorTipo(String tipo) {
+        if (tipo == null) return new ArrayList<>();
         return pagamentos.stream()
-                .filter(p -> p.getTipoPaciente().equalsIgnoreCase(tipo))
+                .filter(p -> tipo.equalsIgnoreCase(p.getTipoPaciente()))
                 .collect(Collectors.toList());
     }
 
@@ -117,15 +121,12 @@ public class GerenciadorFinanceiro {
 
     public Map<String, Double> calcularFaturamentoPorTipo() {
         Map<String, Double> faturamento = new HashMap<>();
-
         for (Pagamento pag : pagamentos) {
             if (pag.getStatusPagamento() == Pagamento.StatusPagamento.PAGO) {
-                String tipo = pag.getTipoPaciente();
-                faturamento.put(tipo,
-                        faturamento.getOrDefault(tipo, 0.0) + pag.getValorFinal());
+                String tipo = pag.getTipoPaciente() != null ? pag.getTipoPaciente() : "PARTICULAR";
+                faturamento.put(tipo, faturamento.getOrDefault(tipo, 0.0) + pag.getValorFinal());
             }
         }
-
         return faturamento;
     }
 
@@ -147,29 +148,122 @@ public class GerenciadorFinanceiro {
         return new ArrayList<>(taxas);
     }
 
-    private void salvarPagamentos() {
+    public String gerarRelatorioFinanceiroGeral() {
+        StringBuilder sb = new StringBuilder();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        sb.append("╔═══════════════════════════════════════════════════════════╗\n");
+        sb.append("║          RELATÓRIO FINANCEIRO GERAL                       ║\n");
+        sb.append("╚═══════════════════════════════════════════════════════════╝\n\n");
+        sb.append("Data: ").append(LocalDateTime.now().format(formatter)).append("\n\n");
+        double faturamentoTotal = calcularFaturamentoTotal();
+        sb.append("───────────────────────────────────────────────────────────\n");
+        sb.append("FATURAMENTO TOTAL: R$ ").append(String.format("%.2f", faturamentoTotal)).append("\n");
+        sb.append("───────────────────────────────────────────────────────────\n\n");
+        sb.append("FATURAMENTO POR TIPO DE PACIENTE:\n");
+        Map<String, Double> faturamentoPorTipo = calcularFaturamentoPorTipo();
+        for (Map.Entry<String, Double> entry : faturamentoPorTipo.entrySet()) {
+            double percentual = faturamentoTotal > 0 ? (entry.getValue() / faturamentoTotal) * 100 : 0;
+            sb.append(String.format("  • %s: R$ %.2f (%.1f%%)\n",
+                    entry.getKey(), entry.getValue(), percentual));
+        }
+        sb.append("\n");
+        sb.append("STATUS DOS PAGAMENTOS:\n");
+        Map<Pagamento.StatusPagamento, Long> statusCount = pagamentos.stream()
+                .collect(Collectors.groupingBy(Pagamento::getStatusPagamento, Collectors.counting()));
+        for (Map.Entry<Pagamento.StatusPagamento, Long> entry : statusCount.entrySet()) {
+            sb.append(String.format("  • %s: %d pagamentos\n",
+                    entry.getKey(), entry.getValue()));
+        }
+        sb.append("\n");
+        double totalTaxas = calcularTotalTaxas();
+        long numTaxas = taxas.stream().filter(TaxaCancelamento::isCobrado).count();
+        sb.append("TAXAS DE CANCELAMENTO:\n");
+        sb.append(String.format("  • Total cobrado: R$ %.2f\n", totalTaxas));
+        sb.append(String.format("  • Número de taxas: %d\n", numTaxas));
+        sb.append("\n");
+        sb.append("═══════════════════════════════════════════════════════════\n");
+        return sb.toString();
+    }
+
+    public String gerarRelatorioFaturamentoPorTipo() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("╔═══════════════════════════════════════════════════════════╗\n");
+        sb.append("║       RELATÓRIO DE FATURAMENTO POR TIPO DE PACIENTE      ║\n");
+        sb.append("╚═══════════════════════════════════════════════════════════╝\n\n");
+        Map<String, Double> faturamento = calcularFaturamentoPorTipo();
+        double total = faturamento.values().stream().mapToDouble(Double::doubleValue).sum();
+        double particular = faturamento.getOrDefault("PARTICULAR", 0.0);
+        sb.append("PARTICULAR (sem desconto):\n");
+        sb.append(String.format("  Faturamento: R$ %.2f\n", particular));
+        if (total > 0) sb.append(String.format("  Percentual: %.1f%%\n", (particular/total)*100));
+        long qtdParticular = listarPagamentosPorTipo("PARTICULAR").stream()
+                .filter(p -> p.getStatusPagamento() == Pagamento.StatusPagamento.PAGO)
+                .count();
+        sb.append(String.format("  Quantidade: %d pagamentos\n\n", qtdParticular));
+        double convenio = faturamento.getOrDefault("CONVENIO", 0.0);
+        sb.append("CONVÊNIO (20% desconto):\n");
+        sb.append(String.format("  Faturamento: R$ %.2f\n", convenio));
+        if (total > 0) sb.append(String.format("  Percentual: %.1f%%\n", (convenio/total)*100));
+        long qtdConvenio = listarPagamentosPorTipo("CONVENIO").stream()
+                .filter(p -> p.getStatusPagamento() == Pagamento.StatusPagamento.PAGO)
+                .count();
+        sb.append(String.format("  Quantidade: %d pagamentos\n\n", qtdConvenio));
+        double vip = faturamento.getOrDefault("VIP", 0.0);
+        sb.append("VIP (30% desconto):\n");
+        sb.append(String.format("  Faturamento: R$ %.2f\n", vip));
+        if (total > 0) sb.append(String.format("  Percentual: %.1f%%\n", (vip/total)*100));
+        long qtdVip = listarPagamentosPorTipo("VIP").stream()
+                .filter(p -> p.getStatusPagamento() == Pagamento.StatusPagamento.PAGO)
+                .count();
+        sb.append(String.format("  Quantidade: %d pagamentos\n\n", qtdVip));
+        sb.append("───────────────────────────────────────────────────────────\n");
+        sb.append(String.format("TOTAL GERAL: R$ %.2f\n", total));
+        sb.append("═══════════════════════════════════════════════════════════\n");
+        return sb.toString();
+    }
+
+    public String gerarRelatorioCompleto() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(gerarRelatorioFinanceiroGeral()).append("\n\n");
+        sb.append(gerarRelatorioFaturamentoPorTipo()).append("\n\n");
+        return sb.toString();
+    }
+
+    public boolean salvarRelatorio(String nomeArquivo, String conteudo) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+            String timestamp = LocalDateTime.now().format(formatter);
+            String nomeCompleto = DIRETORIO_RELATORIOS + nomeArquivo + "_" + timestamp + ".txt";
+            try (PrintWriter writer = new PrintWriter(new FileWriter(nomeCompleto))) {
+                writer.print(conteudo);
+            }
+            System.out.println("Relatório salvo em: " + nomeCompleto);
+            return true;
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar relatório: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public void salvarPagamentos() {
         try (PrintWriter writer = new PrintWriter(new FileWriter(ARQUIVO_PAGAMENTOS))) {
             writer.println("id,consultaId,valorBase,valorFinal,tipoPaciente,statusPagamento,formaPagamento,dataPagamento");
-            for (Pagamento pag : pagamentos) {
-                writer.println(pag.toCSV());
-            }
+            for (Pagamento pag : pagamentos) writer.println(pag.toCSV());
         } catch (IOException e) {
             System.err.println("Erro ao salvar pagamentos: " + e.getMessage());
         }
     }
 
-    private void salvarTaxas() {
+    public void salvarTaxas() {
         try (PrintWriter writer = new PrintWriter(new FileWriter(ARQUIVO_TAXAS))) {
             writer.println("id,consultaId,valorOriginal,valorTaxa,dataGeracao,cobrado");
-            for (TaxaCancelamento taxa : taxas) {
-                writer.println(taxa.toCSV());
-            }
+            for (TaxaCancelamento taxa : taxas) writer.println(taxa.toCSV());
         } catch (IOException e) {
             System.err.println("Erro ao salvar taxas: " + e.getMessage());
         }
     }
 
-    private void carregarDados() {
+    public void carregarDados() {
         carregarPagamentos();
         carregarTaxas();
     }
@@ -177,18 +271,21 @@ public class GerenciadorFinanceiro {
     private void carregarPagamentos() {
         File arquivo = new File(ARQUIVO_PAGAMENTOS);
         if (!arquivo.exists()) return;
-
         try (BufferedReader reader = new BufferedReader(new FileReader(arquivo))) {
-            String linha = reader.readLine(); // Pula cabeçalho
-
+            String linha = reader.readLine();
             while ((linha = reader.readLine()) != null) {
-                String[] dados = linha.split(",");
+                String[] dados = linha.split(",", -1);
                 if (dados.length >= 8) {
+                    String id = safe(dados[0]);
+                    String consultaId = safe(dados[1]);
+                    double valorBase = parseDoubleSafe(dados[2]);
+                    double valorFinal = parseDoubleSafe(dados[3]);
+                    String tipo = safe(dados[4]);
+                    String status = safe(dados[5]);
+                    String forma = safe(dados[6]);
+                    String data = safe(dados[7]);
                     Pagamento pag = new Pagamento(
-                            dados[0], dados[1],
-                            Double.parseDouble(dados[2]),
-                            Double.parseDouble(dados[3]),
-                            dados[4], dados[5], dados[6], dados[7]
+                            id, consultaId, valorBase, valorFinal, tipo, status, forma, data
                     );
                     pagamentos.add(pag);
                 }
@@ -201,20 +298,18 @@ public class GerenciadorFinanceiro {
     private void carregarTaxas() {
         File arquivo = new File(ARQUIVO_TAXAS);
         if (!arquivo.exists()) return;
-
         try (BufferedReader reader = new BufferedReader(new FileReader(arquivo))) {
-            String linha = reader.readLine(); // Pula cabeçalho
-
+            String linha = reader.readLine();
             while ((linha = reader.readLine()) != null) {
-                String[] dados = linha.split(",");
+                String[] dados = linha.split(",", -1);
                 if (dados.length >= 6) {
-                    TaxaCancelamento taxa = new TaxaCancelamento(
-                            dados[0], dados[1],
-                            Double.parseDouble(dados[2]),
-                            Double.parseDouble(dados[3]),
-                            dados[4],
-                            Boolean.parseBoolean(dados[5])
-                    );
+                    String id = safe(dados[0]);
+                    String consultaId = safe(dados[1]);
+                    double valorOriginal = parseDoubleSafe(dados[2]);
+                    double valorTaxa = parseDoubleSafe(dados[3]);
+                    String dataGeracao = safe(dados[4]);
+                    boolean cobrado = Boolean.parseBoolean(safe(dados[5]));
+                    TaxaCancelamento taxa = new TaxaCancelamento(id, consultaId, valorOriginal, valorTaxa, dataGeracao, cobrado);
                     taxas.add(taxa);
                 }
             }
@@ -223,30 +318,19 @@ public class GerenciadorFinanceiro {
         }
     }
 
+    private String safe(String s) { return s == null || s.equals("null") ? "" : s.trim(); }
+    private double parseDoubleSafe(String s) { try { return Double.parseDouble(s); } catch (Exception e) { return 0.0; } }
+
     public boolean realizarBackup() {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
             String timestamp = LocalDateTime.now().format(formatter);
-
             File backupDir = new File("dados/backup");
-            if (!backupDir.exists()) {
-                backupDir.mkdirs();
-            }
-
-            // Backup pagamentos
+            if (!backupDir.exists()) backupDir.mkdirs();
             File pagOriginal = new File(ARQUIVO_PAGAMENTOS);
-            if (pagOriginal.exists()) {
-                File pagBackup = new File("dados/backup/pagamentos_" + timestamp + ".csv");
-                copiarArquivo(pagOriginal, pagBackup);
-            }
-
-            // Backup taxas
+            if (pagOriginal.exists()) copiarArquivo(pagOriginal, new File("dados/backup/pagamentos_" + timestamp + ".csv"));
             File taxaOriginal = new File(ARQUIVO_TAXAS);
-            if (taxaOriginal.exists()) {
-                File taxaBackup = new File("dados/backup/taxas_" + timestamp + ".csv");
-                copiarArquivo(taxaOriginal, taxaBackup);
-            }
-
+            if (taxaOriginal.exists()) copiarArquivo(taxaOriginal, new File("dados/backup/taxas_" + timestamp + ".csv"));
             return true;
         } catch (Exception e) {
             System.err.println("Erro ao realizar backup: " + e.getMessage());
@@ -258,9 +342,7 @@ public class GerenciadorFinanceiro {
         try (BufferedReader reader = new BufferedReader(new FileReader(origem));
              PrintWriter writer = new PrintWriter(new FileWriter(destino))) {
             String linha;
-            while ((linha = reader.readLine()) != null) {
-                writer.println(linha);
-            }
+            while ((linha = reader.readLine()) != null) writer.println(linha);
         }
     }
 }
